@@ -33,8 +33,9 @@ class ImmichClient:
         self.config = config
         self.session = requests.Session()
         self.session.headers.update({
-            "Authorization": f"Bearer {config.api_key}",
-            "Accept": "application/json"
+            "x-api-key": config.api_key,
+            "Accept": "application/json",
+            "Content-Type": "application/json"
         })
         
     def get_random_assets(self, count: int = 5) -> List[Asset]:
@@ -56,7 +57,10 @@ class ImmichClient:
         try:
             response = self.session.post(
                 f"{self.config.url}/api/search/random",
-                json={"count": count}
+                json={
+                    "count": count,
+                    "type": "IMAGE"
+                }
             )
             response.raise_for_status()
             
