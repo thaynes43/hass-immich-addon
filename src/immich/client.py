@@ -51,8 +51,8 @@ class ImmichClient:
         Raises:
             requests.RequestException: If the API request fails
         """
-        print("IMMICH URL:")
-        print(f"{self.config.url}/api/search/random")
+
+        print(f"POST url: {self.config.url}/api/search/random")
 
         try:
             response = self.session.post(

@@ -2,7 +2,7 @@
 Main application entry point.
 """
 import logging
-from config import IMMICH_URL, IMMICH_API_KEY
+from config import IMMICH_URL, IMMICH_API_KEY, NUM_PHOTOS
 from immich.client import ImmichClient, ImmichConfig
 
 # Configure logging
@@ -17,8 +17,8 @@ def main():
     client = ImmichClient(config)
     
     try:
-        # Get 5 random assets
-        assets = client.get_random_assets(count=5)
+        # Get random assets using configured number of photos
+        assets = client.get_random_assets(count=NUM_PHOTOS)
         
         # Print asset information
         for asset in assets:
