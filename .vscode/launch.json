@@ -8,7 +8,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "python": "${workspaceFolder}/venv/Scripts/python.exe"
+            "python": "${command:python.interpreterPath}"
         },
         {
             "name": "Python: Main",
@@ -17,7 +17,7 @@
             "program": "${workspaceFolder}/src/main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "python": "${workspaceFolder}/venv/Scripts/python.exe"
+            "python": "${command:python.interpreterPath}"
         }
     ]
 }

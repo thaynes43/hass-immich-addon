@@ -2,9 +2,11 @@
 Immich API client for interacting with Immich photo server.
 """
 import logging
+import os
 from dataclasses import dataclass
 from typing import List, Optional
 import requests
+from .selectors import AssetSelector
 
 logger = logging.getLogger(__name__)
 
@@ -25,57 +27,100 @@ class Asset:
     filename: str
     thumbnail_url: str
 
+    def save_to_directory(self, directory: str, client: 'ImmichClient') -> str:
+        """
+        Save the asset to the specified directory.
+        
+        Args:
+            directory: Directory path where the asset should be saved
+            client: ImmichClient instance to use for downloading
+            
+        Returns:
+            Path to the saved file
+            
+        Raises:
+            OSError: If file cannot be written
+            requests.RequestException: If download fails
+        """
+        # Ensure filename is safe and unique
+        safe_filename = os.path.basename(self.filename)
+        file_path = os.path.join(directory, safe_filename)
+        
+        # Download and save the asset
+        data = client.download_assets([self.id])
+        
+        with open(file_path, 'wb') as f:
+            f.write(data)
+            
+        logger.info(f"Saved asset {self.id} to {file_path}")
+        return file_path
+
 class ImmichClient:
     """Client for interacting with Immich API."""
     
-    def __init__(self, config: ImmichConfig):
-        """Initialize the client with configuration."""
+    def __init__(self, config: ImmichConfig, asset_selector: AssetSelector):
+        """
+        Initialize the client with configuration and asset selector.
+        
+        Args:
+            config: ImmichConfig instance with connection details
+            asset_selector: Strategy for selecting assets from Immich
+        """
         self.config = config
+        self.asset_selector = asset_selector
         self.session = requests.Session()
         self.session.headers.update({
             "x-api-key": config.api_key,
             "Accept": "application/json",
             "Content-Type": "application/json"
         })
-        
-    def get_random_assets(self, count: int = 5) -> List[Asset]:
+
+    def get_assets(self, count: int = 5) -> List[str]:
         """
-        Get a specified number of random assets from Immich.
+        Get asset IDs using the configured selector strategy.
         
         Args:
-            count: Number of random assets to retrieve
+            count: Number of assets to retrieve
             
         Returns:
-            List of Asset objects containing photo information
+            List of asset IDs
             
         Raises:
             requests.RequestException: If the API request fails
         """
+        return self.asset_selector.get_assets(count)
 
-        print(f"POST url: {self.config.url}/api/search/random")
-
+    def download_assets(self, asset_ids: List[str]) -> bytes:
+        """
+        Download assets by their IDs.
+        
+        Args:
+            asset_ids: List of asset IDs to download
+            
+        Returns:
+            Binary data containing the downloaded assets
+            
+        Raises:
+            requests.RequestException: If the download fails
+        """
         try:
-            response = self.session.post(
-                f"{self.config.url}/api/search/random",
-                json={
-                    "count": count,
-                    "type": "IMAGE"
-                }
+            # Create a new session with modified headers for binary download
+            download_session = requests.Session()
+            download_session.headers.update({
+                "x-api-key": self.config.api_key,
+                "Content-Type": "application/json",
+                "Accept": "application/octet-stream"
+            })
+            
+            response = download_session.post(
+                f"{self.config.url}/api/download/archive",
+                json={"assetIds": asset_ids}
             )
             response.raise_for_status()
             
-            assets = []
-            for item in response.json():
-                asset = Asset(
-                    id=item["id"],
-                    filename=item["originalFileName"],
-                    thumbnail_url=f"{self.config.url}/api/asset/thumbnail/{item['id']}"
-                )
-                assets.append(asset)
-                
-            logger.info(f"Successfully retrieved {len(assets)} random assets")
-            return assets
+            logger.info(f"Successfully downloaded {len(asset_ids)} assets")
+            return response.content
             
         except requests.RequestException as e:
-            logger.error(f"Failed to get random assets: {e}")
+            logger.error(f"Failed to download assets: {e}")
             raise 
