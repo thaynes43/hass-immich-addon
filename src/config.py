@@ -66,7 +66,7 @@ IMMICH_API_KEY = get_required_env("IMMICH_API_KEY")
 HASS_IMG_PATH = os.getenv("HASS_IMG_PATH", "/config/www/immich-photos")  # Default path in Home Assistant
 
 # Application settings
-NUM_PHOTOS = get_int_env("NUM_PHOTOS", 5)  # Default to 5 photos if not specified
+NUM_PHOTOS = get_int_env("NUM_PHOTOS", 15)  # Default to 15 photos if not specified
 
 # Ensure the image directory exists and is writable
 ensure_directory_exists(HASS_IMG_PATH)
