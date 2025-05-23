@@ -5,6 +5,7 @@ import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+from typing import List, Optional
 
 # Load environment variables from .env file
 load_dotenv()
@@ -68,6 +69,10 @@ HASS_IMG_PATH = os.getenv("HASS_IMG_PATH", "/config/www/immich-photos")  # Defau
 # Application settings
 NUM_PHOTOS = get_int_env("NUM_PHOTOS", 15)  # Default to 15 photos if not specified
 
+# Optional filters
+CITY_FILTER = os.getenv("CITY_FILTER")
+PEOPLE_FILTER = os.getenv("PEOPLE_FILTER", "")
+
 # Ensure the image directory exists and is writable
 ensure_directory_exists(HASS_IMG_PATH)
 
@@ -77,3 +82,16 @@ print(f"IMMICH_URL: {IMMICH_URL}")
 print(f"IMMICH_API_KEY: {'*' * len(IMMICH_API_KEY)}")  # Mask API key for security
 print(f"HASS_IMG_PATH: {HASS_IMG_PATH}")
 print(f"NUM_PHOTOS: {NUM_PHOTOS}")
+
+def get_people_list() -> Optional[List[str]]:
+    """
+    Get list of people names from environment variable.
+    
+    Returns:
+        List of people names if PEOPLE_FILTER is set, None otherwise
+    """
+    if not PEOPLE_FILTER:
+        return None
+    
+    # Split by comma and strip whitespace from each name
+    return [name.strip() for name in PEOPLE_FILTER.split(",") if name.strip()]

@@ -3,9 +3,17 @@ Main application entry point.
 """
 import logging
 import os
-from config import IMMICH_URL, IMMICH_API_KEY, NUM_PHOTOS, HASS_IMG_PATH
+from config import (
+    IMMICH_URL, 
+    IMMICH_API_KEY, 
+    NUM_PHOTOS, 
+    HASS_IMG_PATH,
+    CITY_FILTER,
+    get_people_list
+)
 from immich.client import ImmichClient, ImmichConfig
 from immich.selectors import RandomAssetSelector
+from immich.immich_api import ImmichAPI
 from utils import (
     save_binary_data, 
     extract_zip, 
@@ -21,7 +29,7 @@ from utils.media_utils import (
 import requests
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def main():
@@ -38,12 +46,28 @@ def main():
         "Accept": "application/json",
         "Content-Type": "application/json"
     })
+
+    # Get list of people from Immich
+    api = ImmichAPI(session, IMMICH_URL)
+    people = api.get_people()
+    
+    # Get person IDs for filtered people if specified
+    person_ids = None
+    people_filter = get_people_list()
+    if people_filter:
+        try:
+            person_ids = [people[name] for name in people_filter]
+            logger.info(f"Filtering photos for people: {', '.join(people_filter)}")
+        except KeyError as e:
+            logger.warning(f"Person not found in Immich: {e}")
+            logger.debug("Available people: %s", list(people.keys()))
     
     # Initialize the asset selector with authenticated session
     selector = RandomAssetSelector(
         session=session,
         base_url=IMMICH_URL,
-        city="Celebration"  # This could come from config
+        city=CITY_FILTER,
+        person_ids=person_ids
     )
     
     # Create the client with the selector
