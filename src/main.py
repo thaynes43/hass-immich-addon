@@ -13,6 +13,11 @@ from utils import (
     process_media_files,
     cleanup_directory
 )
+from utils.media_utils import (
+    SUPPORTED_IMAGE_FORMATS,
+    SUPPORTED_VIDEO_FORMATS,
+    HEIC_FORMATS
+)
 import requests
 
 # Configure logging
@@ -47,7 +52,7 @@ def main():
     try:
         # Clean up existing media files
         logger.info("Cleaning up existing media files...")
-        cleanup_directory(HASS_IMG_PATH, file_types=['.jpg', '.jpeg', '.mp4'])
+        cleanup_directory(HASS_IMG_PATH, file_types=SUPPORTED_IMAGE_FORMATS + SUPPORTED_VIDEO_FORMATS + HEIC_FORMATS)
         
         # Get asset IDs using the configured selector
         logger.info(f"Fetching {NUM_PHOTOS} photos...")

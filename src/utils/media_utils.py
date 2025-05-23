@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 # Register HEIF opener with Pillow
 pillow_heif.register_heif_opener()
 
+# Supported image and video formats
+SUPPORTED_IMAGE_FORMATS = ('.jpg', '.jpeg', '.png', '.gif', '.webp')
+SUPPORTED_VIDEO_FORMATS = ('.mov', '.mp4')
+HEIC_FORMATS = ('.heic', '.heif')
+
 def convert_heic_to_jpg(input_path: str, output_dir: str) -> str:
     """
     Convert a HEIC image file to JPG format.
@@ -101,14 +106,14 @@ def process_media_file(input_path: str, output_dir: str) -> str:
     # Get file extension (lowercase)
     ext = os.path.splitext(input_path)[1].lower()
     
-    if ext in ('.heic', '.heif'):
+    if ext in HEIC_FORMATS:
         try:
             # Try image conversion first
             return convert_heic_to_jpg(input_path, output_dir)
         except Image.UnidentifiedImageError:
             # If it fails as an image, try video conversion
             return convert_heic_video_to_mp4(input_path, output_dir)
-    elif ext in ('.mov', '.mp4'):
+    elif ext in SUPPORTED_IMAGE_FORMATS or ext in SUPPORTED_VIDEO_FORMATS:
         # Already in supported format, just return the path
         return input_path
     else:
