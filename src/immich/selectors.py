@@ -33,7 +33,7 @@ class AssetSelector(ABC):
 class RandomAssetSelector(AssetSelector):
     """Selects random assets from Immich."""
     
-    def __init__(self, session: ImmichSession, base_url: str, city: Optional[str] = None, person_ids: Optional[List[str]] = None):
+    def __init__(self, session: ImmichSession, base_url: str, city: Optional[str] = None, person_ids: Optional[List[str]] = None, use_date_filter: bool = False):
         """
         Initialize the random asset selector.
         
@@ -42,10 +42,12 @@ class RandomAssetSelector(AssetSelector):
             base_url: Base URL of the Immich server
             city: Optional city name to filter assets by location
             person_ids: Optional list of person GUIDs to filter assets by people
+            use_date_filter: Whether to apply date-based filtering
         """
         self.api = ImmichAPI(session, base_url)
         self.city = city
         self.person_ids = person_ids
+        self.use_date_filter = use_date_filter
         
     def get_assets(self, count: int = 5) -> List[str]:
         """
@@ -61,20 +63,24 @@ class RandomAssetSelector(AssetSelector):
             requests.RequestException: If the API request fails
         """
         print(f"POST url: {self.api.base_url}/api/search/random")
-
-        # Generate a random date within the last year
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=365)
-        random_days = random.randint(0, 365)
-        random_date = start_date + timedelta(days=random_days)
         
         # Build request body with only non-None values
         request_body = {
             "size": count,
-            "type": "IMAGE",
-            "takenAfter": random_date.isoformat(),
-            "takenBefore": end_date.isoformat()
+            "type": "IMAGE"
         }
+        
+        # Add date filtering if enabled
+        if self.use_date_filter:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=365)
+            random_days = random.randint(0, 365)
+            random_date = start_date + timedelta(days=random_days)
+            
+            request_body.update({
+                "takenAfter": random_date.isoformat(),
+                "takenBefore": end_date.isoformat()
+            })
         
         # Only add filters if they are specified
         if self.person_ids:

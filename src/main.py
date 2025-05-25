@@ -12,6 +12,7 @@ from config import (
     NUM_PHOTOS, 
     HASS_IMG_PATH,
     CITY_FILTER,
+    DATE_FILTER,
     get_people_list
 )
 from immich.client import ImmichClient, ImmichConfig
@@ -70,7 +71,8 @@ def main():
         session=session,
         base_url=IMMICH_URL,
         city=CITY_FILTER,
-        person_ids=person_ids
+        person_ids=person_ids,
+        use_date_filter=DATE_FILTER
     )
     
     # Create the client with the selector

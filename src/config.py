@@ -4,7 +4,7 @@ Configuration settings for the application.
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 from typing import List, Optional
 
 # Clear existing environment variables that we manage
@@ -14,7 +14,8 @@ managed_vars = [
     "HASS_IMG_PATH",
     "NUM_PHOTOS",
     "CITY_FILTER",
-    "PEOPLE_FILTER"
+    "PEOPLE_FILTER",
+    "DATE_FILTER"
 ]
 for var in managed_vars:
     if var in os.environ:
@@ -85,6 +86,7 @@ NUM_PHOTOS = get_int_env("NUM_PHOTOS", 15)  # Default to 15 photos if not specif
 # Optional filters
 CITY_FILTER = os.getenv("CITY_FILTER")
 PEOPLE_FILTER = os.getenv("PEOPLE_FILTER", "")
+DATE_FILTER = os.getenv("DATE_FILTER", "").lower() == "true"  # Default to False if not set TODO refactor this into a start and end date filter
 
 # Ensure the image directory exists and is writable
 ensure_directory_exists(HASS_IMG_PATH)
@@ -97,6 +99,7 @@ print(f"HASS_IMG_PATH: {HASS_IMG_PATH}")
 print(f"NUM_PHOTOS: {NUM_PHOTOS}")
 print(f"CITY_FILTER: {CITY_FILTER}")
 print(f"PEOPLE_FILTER: {PEOPLE_FILTER}")
+print(f"DATE_FILTER: {DATE_FILTER}")
 
 def get_people_list() -> Optional[List[str]]:
     """
