@@ -7,28 +7,31 @@ from pathlib import Path
 from dotenv import load_dotenv
 from typing import List, Optional
 
-# Clear existing environment variables that we manage
-managed_vars = [
-    "IMMICH_URL",
-    "IMMICH_API_KEY",
-    "HASS_IMG_PATH",
-    "NUM_PHOTOS",
-    "CITY_FILTER",
-    "PEOPLE_FILTER",
-    "DATE_FILTER"
-]
-for var in managed_vars:
-    if var in os.environ:
-        del os.environ[var]
-
-# Load environment variables from .env file
-load_dotenv()
+# Only clear and load from .env if the file exists
+env_file = Path('.env')
+if env_file.exists():
+    # Clear existing environment variables that we manage
+    managed_vars = [
+        "IMMICH_URL",
+        "IMMICH_API_KEY",
+        "HASS_IMG_PATH",
+        "NUM_PHOTOS",
+        "CITY_FILTER",
+        "PEOPLE_FILTER",
+        "DATE_FILTER"
+    ]
+    for var in managed_vars:
+        if var in os.environ:
+            del os.environ[var]
+            
+    # Load environment variables from .env file
+    load_dotenv()
 
 def get_required_env(key: str) -> str:
     """Get a required environment variable or raise an exception."""
     value = os.getenv(key)
     if value is None:
-        raise ValueError(f"Required environment variable '{key}' is not set. Please set it in your .env file.")
+        raise ValueError(f"Required environment variable '{key}' is not set.")
     return value
 
 def get_int_env(key: str, default: int) -> int:
