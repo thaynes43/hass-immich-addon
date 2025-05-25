@@ -78,7 +78,7 @@ IMMICH_URL = get_required_env("IMMICH_URL")
 IMMICH_API_KEY = get_required_env("IMMICH_API_KEY")
 
 # Home Assistant settings
-HASS_IMG_PATH = os.getenv("HASS_IMG_PATH", "/config/www/immich-photos")  # Default path in Home Assistant
+HASS_IMG_PATH = os.getenv("HASS_IMG_PATH", "/config/www/immich-album")  # Default path in Home Assistant
 
 # Application settings
 NUM_PHOTOS = get_int_env("NUM_PHOTOS", 15)  # Default to 15 photos if not specified
