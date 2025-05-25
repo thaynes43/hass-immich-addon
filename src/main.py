@@ -6,26 +6,6 @@ import os
 import sys
 from pathlib import Path
 
-# Ensure we're running in a virtual environment
-def ensure_venv():
-    """Ensure we're running in a virtual environment and activate it if not."""
-    if not hasattr(sys, 'real_prefix') and not sys.base_prefix != sys.prefix:
-        venv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'venv')
-        if os.path.exists(venv_path):
-            venv_bin = os.path.join(venv_path, 'Scripts' if os.name == 'nt' else 'bin')
-            activate_script = os.path.join(venv_bin, 'activate_this.py')
-            if os.path.exists(activate_script):
-                with open(activate_script) as f:
-                    exec(f.read(), {'__file__': activate_script})
-            else:
-                raise RuntimeError(f"Virtual environment exists at {venv_path} but activation script not found")
-        else:
-            raise RuntimeError(f"Virtual environment not found at {venv_path}. Please create it first.")
-    return True
-
-# Try to activate virtual environment
-ensure_venv()
-
 from config import (
     IMMICH_URL, 
     IMMICH_API_KEY, 
