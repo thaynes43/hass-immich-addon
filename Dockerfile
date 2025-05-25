@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
-COPY src/ ./src/
+COPY src/ .
 
 # Run with unbuffered output
-CMD ["python", "-u", "-m", "src.main"] 
+CMD ["python", "-u", "main.py"] 

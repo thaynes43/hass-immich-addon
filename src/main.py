@@ -6,6 +6,12 @@ import os
 import sys
 from pathlib import Path
 
+# Add the parent directory to Python path for local development
+if os.path.basename(os.getcwd()) == 'src':
+    sys.path.append(os.path.dirname(os.getcwd()))
+else:
+    sys.path.append(os.getcwd())
+
 from config import (
     IMMICH_URL, 
     IMMICH_API_KEY, 
