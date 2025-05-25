@@ -50,7 +50,7 @@ class ImmichAPI:
         logger.info(f"Retrieved {len(people_dict)} people from Immich")
              
         # Debug level - detailed information about each person
-        for name, id in people_dict.items():
-            logger.debug(f"Found person: {name} (ID: {id})")
+        #for name, id in people_dict.items():
+        #    logger.debug(f"Found person: {name} (ID: {id})")
         
         return people_dict 

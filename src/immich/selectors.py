@@ -4,6 +4,9 @@ Asset selection strategies for Immich.
 from abc import ABC, abstractmethod
 from typing import List, Optional
 import logging
+import time
+from datetime import datetime, timedelta
+import random
 from .immich_api import ImmichSession, ImmichAPI
 
 logger = logging.getLogger(__name__)
@@ -59,17 +62,26 @@ class RandomAssetSelector(AssetSelector):
         """
         print(f"POST url: {self.api.base_url}/api/search/random")
 
+        # Generate a random date within the last year
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=365)
+        random_days = random.randint(0, 365)
+        random_date = start_date + timedelta(days=random_days)
+        
+        # Build request body with only non-None values
         request_body = {
             "size": count,
             "type": "IMAGE",
-            "withPeople": bool(self.person_ids)  # Only set True if we're filtering by people
+            "takenAfter": random_date.isoformat(),
+            "takenBefore": end_date.isoformat()
         }
         
-        if self.city:
-            request_body["city"] = self.city
-            
+        # Only add filters if they are specified
         if self.person_ids:
             request_body["personIds"] = self.person_ids
+            
+        if self.city:
+            request_body["city"] = self.city
 
         response = self.api.session.post(
             f"{self.api.base_url}/api/search/random",

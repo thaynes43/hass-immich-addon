@@ -4,8 +4,21 @@ Configuration settings for the application.
 import os
 import sys
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 from typing import List, Optional
+
+# Clear existing environment variables that we manage
+managed_vars = [
+    "IMMICH_URL",
+    "IMMICH_API_KEY",
+    "HASS_IMG_PATH",
+    "NUM_PHOTOS",
+    "CITY_FILTER",
+    "PEOPLE_FILTER"
+]
+for var in managed_vars:
+    if var in os.environ:
+        del os.environ[var]
 
 # Load environment variables from .env file
 load_dotenv()
@@ -82,6 +95,8 @@ print(f"IMMICH_URL: {IMMICH_URL}")
 print(f"IMMICH_API_KEY: {'*' * len(IMMICH_API_KEY)}")  # Mask API key for security
 print(f"HASS_IMG_PATH: {HASS_IMG_PATH}")
 print(f"NUM_PHOTOS: {NUM_PHOTOS}")
+print(f"CITY_FILTER: {CITY_FILTER}")
+print(f"PEOPLE_FILTER: {PEOPLE_FILTER}")
 
 def get_people_list() -> Optional[List[str]]:
     """
