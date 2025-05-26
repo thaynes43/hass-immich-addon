@@ -55,7 +55,7 @@ def convert_heic_to_jpg(input_path: str, output_dir: str) -> str:
         return output_path
         
     except Exception as e:
-        logger.error(f"Failed to convert {input_path} to JPG: {e}")
+        logger.error(f"Failed to convert {input_path} to JPG: {e}", exc_info=True)
         raise
 
 def convert_heic_video_to_mp4(input_path: str, output_dir: str) -> str:
@@ -86,7 +86,7 @@ def convert_heic_video_to_mp4(input_path: str, output_dir: str) -> str:
         return output_path
         
     except ffmpeg.Error as e:
-        logger.error(f"Failed to convert {input_path} to MP4: {e.stderr.decode()}")
+        logger.error(f"Failed to convert {input_path} to MP4: {e.stderr.decode()}", exc_info=True)
         raise
 
 def process_media_file(input_path: str, output_dir: str) -> str:
@@ -136,7 +136,7 @@ def process_media_files(input_files: List[str], output_dir: str) -> List[str]:
             processed_path = process_media_file(input_file, output_dir)
             processed_files.append(processed_path)
         except Exception as e:
-            logger.error(f"Failed to process {input_file}: {e}")
+            logger.error(f"Failed to process {input_file}: {e}", exc_info=True)
             # Continue processing other files even if one fails
             continue
     

@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": false,
             "python": "${command:python.interpreterPath}"
         },
         {
@@ -15,8 +15,9 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/main.py",
+            "args": ["-c", "settings.yaml"],
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": false,
             "python": "${command:python.interpreterPath}"
         }
     ]

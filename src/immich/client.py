@@ -122,5 +122,5 @@ class ImmichClient:
             return response.content
             
         except requests.RequestException as e:
-            logger.error(f"Failed to download assets: {e}")
+            logger.error(f"Failed to download assets: {e}", exc_info=True)
             raise 

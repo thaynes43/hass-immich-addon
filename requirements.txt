@@ -3,3 +3,4 @@ requests
 pillow-heif
 Pillow
 ffmpeg-python
+PyYAML>=6.0.1  # For YAML configuration file support

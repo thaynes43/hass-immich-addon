@@ -41,7 +41,7 @@ def cleanup_directory(directory: str, file_types: List[str] = None) -> None:
         logger.info(f"Successfully cleaned directory: {directory}")
         
     except OSError as e:
-        logger.error(f"Failed to clean directory {directory}: {e}")
+        logger.error(f"Failed to clean directory {directory}: {e}", exc_info=True)
         raise
 
 def save_binary_data(data: bytes, filepath: str) -> str:
@@ -64,7 +64,7 @@ def save_binary_data(data: bytes, filepath: str) -> str:
         logger.info(f"Successfully saved data to {filepath}")
         return filepath
     except OSError as e:
-        logger.error(f"Failed to save file to {filepath}: {e}")
+        logger.error(f"Failed to save file to {filepath}: {e}", exc_info=True)
         raise
 
 def extract_zip(zip_path: str, extract_dir: str) -> List[str]:
@@ -101,7 +101,7 @@ def extract_zip(zip_path: str, extract_dir: str) -> List[str]:
         return extracted_files
         
     except (zipfile.BadZipFile, OSError) as e:
-        logger.error(f"Failed to extract ZIP file {zip_path}: {e}")
+        logger.error(f"Failed to extract ZIP file {zip_path}: {e}", exc_info=True)
         raise
 
 def cleanup_file(filepath: str) -> None:
@@ -119,5 +119,5 @@ def cleanup_file(filepath: str) -> None:
             os.remove(filepath)
             logger.info(f"Successfully deleted {filepath}")
     except OSError as e:
-        logger.error(f"Failed to delete file {filepath}: {e}")
+        logger.error(f"Failed to delete file {filepath}: {e}", exc_info=True)
         raise 
