@@ -5,6 +5,12 @@ log_level: "DEBUG"
 
 # Photo filters - list of filter sets to cycle through
 filters:
+  - name: "Dracut Home"
+    selector_type: "smart-rng"
+    search_query: "House"
+    max_search_results: 50
+    city: "Dracut"
+
   - name: "Jody"
     selector_type: "smart-rng"
     search_query: "Springer Spaniel"

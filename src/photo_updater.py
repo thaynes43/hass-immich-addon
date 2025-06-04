@@ -140,12 +140,12 @@ class PhotoUpdater:
                     cleanup_file(file)
                     
             self.last_update = datetime.now()
-            logger.info("Photo update completed successfully")
+            logger.info(f"Photo update completed successfully. You should now see photos for {current_filter}.")
             
             # Move to next filter set
             self.current_filter_index = (self.current_filter_index + 1) % len(self.config.filters)
             next_filter = self.config.filters[self.current_filter_index]
-            logger.info(f"Next update will use {next_filter}")
+            logger.info(f"Next update will use {next_filter}.")
             
         except Exception as e:
             logger.error(f"Error updating photos: {e}", exc_info=True)
