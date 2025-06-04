@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 from typing import Literal
-from .defaults import DEFAULT_CONFIG_PATH
+from .env import get_config_path
 
 def parse_datetime(value: str) -> datetime:
     """Parse datetime from ISO format string."""
@@ -34,7 +34,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-c", "--config",
         type=Path,
-        default=DEFAULT_CONFIG_PATH,
+        default=get_config_path(),
         help="Path to configuration file"
     )
     

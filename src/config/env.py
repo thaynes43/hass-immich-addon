@@ -10,6 +10,13 @@ from dotenv import load_dotenv
 from .defaults import *
 from .schema import ImmichConfig, PhotoFilters, AppConfig
 
+def get_config_path() -> Path:
+    """Get configuration file path from environment variable or default."""
+    config_path = os.getenv("CONFIG_PATH")
+    if config_path:
+        return Path(config_path)
+    return DEFAULT_CONFIG_PATH
+
 def parse_datetime(value: Optional[str]) -> Optional[datetime]:
     """Parse datetime from ISO format string."""
     if not value:

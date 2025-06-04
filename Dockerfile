@@ -15,4 +15,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ .
 
 # Run with unbuffered output
-CMD ["python", "-u", "main.py"] 
+ENTRYPOINT ["python", "-u", "main.py"] 
