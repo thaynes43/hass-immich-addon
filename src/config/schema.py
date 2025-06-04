@@ -26,8 +26,9 @@ class ImmichConfig:
 class PhotoFilters:
     """Configuration for photo filtering."""
     name: str
-    selector_type: Literal["random", "smart"] = "random"
+    selector_type: Literal["random", "smart", "smart-rng"] = "random"
     search_query: Optional[str] = None
+    max_search_results: Optional[int] = None
     city: Optional[str] = None
     people: Optional[List[str]] = None
     taken_after: Optional[datetime] = None
@@ -35,12 +36,17 @@ class PhotoFilters:
 
     def validate(self) -> None:
         """Validate filter configuration."""
-        if self.selector_type not in ["random", "smart"]:
+        if self.selector_type not in ["random", "smart", "smart-rng"]:
             raise ValueError(f"Invalid selector type: {self.selector_type}")
-        if self.selector_type == "smart" and not self.search_query:
-            raise ValueError("search_query is required when using smart selector")
+        if self.selector_type in ["smart", "smart-rng"] and not self.search_query:
+            raise ValueError("search_query is required when using smart or smart-rng selector")
         if self.selector_type == "random" and self.search_query:
             raise ValueError("search_query should not be set when using random selector")
+        if self.max_search_results is not None:
+            if self.selector_type != "smart-rng":
+                raise ValueError("max_search_results can only be set when using smart-rng selector")
+            if self.max_search_results <= 0 or self.max_search_results > 1000:
+                raise ValueError("max_search_results must be between 1 and 1000 (Immich limit)")
 
     def __str__(self) -> str:
         """Return a human-readable string representation."""

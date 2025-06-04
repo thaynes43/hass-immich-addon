@@ -11,7 +11,7 @@ import requests
 
 from config.schema import AppConfig, PhotoFilters
 from immich.client import ImmichClient, ImmichConfig
-from immich.selectors import RandomAssetSelector, SmartSearchAssetSelector, AssetSelector
+from immich.selectors import RandomAssetSelector, SmartSearchAssetSelector, RandomSmartSearchAssetSelector, AssetSelector
 from immich.immich_api import ImmichAPI
 from utils import (
     save_binary_data, 
@@ -86,6 +86,12 @@ class PhotoUpdater:
         if filter_set.selector_type == "smart":
             return SmartSearchAssetSelector(
                 search_query=filter_set.search_query,
+                **selector_params
+            )
+        elif filter_set.selector_type == "smart-rng":
+            return RandomSmartSearchAssetSelector(
+                search_query=filter_set.search_query,
+                max_search_results=filter_set.max_search_results or 250,  # Default to 250 if not specified
                 **selector_params
             )
         else:  # random selector

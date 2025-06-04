@@ -16,11 +16,11 @@ def parse_datetime(value: str) -> datetime:
             f"Invalid datetime format. Expected ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS), got: {value}"
         ) from e
 
-def parse_selector_type(value: str) -> Literal["random", "smart"]:
+def parse_selector_type(value: str) -> Literal["random", "smart", "smart-rng"]:
     """Parse and validate selector type."""
-    if value not in ["random", "smart"]:
+    if value not in ["random", "smart", "smart-rng"]:
         raise argparse.ArgumentTypeError(
-            f"Invalid selector type. Must be one of: random, smart. Got: {value}"
+            f"Invalid selector type. Must be one of: random, smart, smart-rng. Got: {value}"
         )
     return value
 
@@ -69,8 +69,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--selector-type",
         type=parse_selector_type,
-        choices=["random", "smart"],
-        help="Override the selector type (random or smart)"
+        choices=["random", "smart", "smart-rng"],
+        help="Override the selector type (random, smart, or smart-rng)"
     )
 
     parser.add_argument(
