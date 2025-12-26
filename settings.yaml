@@ -38,5 +38,5 @@ filters:
 
   - name: "Random Photos From This Year"
     selector_type: "random"
-    taken_after: "2024-12-31"
-    taken_before: "2025-12-31"
+    taken_after: "2025-10-20"
+    taken_before: "2025-10-21"
