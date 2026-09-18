@@ -101,12 +101,44 @@ Use the following from HACS:
 
 Setup a directory this addon and
 
+## Configuration
+
+Settings come from `settings.yaml` (see the sample in this repo), environment variables, and command line flags, in increasing order of priority. Each entry under `filters` is a *filter set*; the addon cycles to the next one on every update.
+
+### Date filters
+
+`taken_after` and `taken_before` restrict a filter set to photos taken in a date range. Both accept a date, a full timestamp, or a timestamp with a timezone:
+
+```yaml
+filters:
+  - name: "Wedding Photos"
+    selector_type: "random"
+    taken_before: "2013-01-01"            # date only
+  - name: "That One Evening"
+    selector_type: "random"
+    taken_after: "2025-10-20T18:00:00"    # timezone-less: treated as UTC
+    taken_before: "2025-10-20T23:59:59-04:00"  # explicit offset is used as given
+```
+
+**A value without a timezone is treated as UTC.** Immich validates these strictly (it rejects a timestamp with no `Z` and no offset with `400 Validation failed`), so the addon always qualifies the value before sending it: a timezone-less value goes out as UTC, and a value with an offset keeps that offset. If your library's timestamps are local and the boundary matters to you, write the offset out explicitly.
+
+Unquoted values work too — YAML parses `taken_after: 2023-01-01` into a date and `2023-01-01 10:30:00` into a timestamp — and are treated the same way.
+
 ## Process
+
+Every cycle fetches the new batch **before** touching the photos currently on display:
+
+1. Ask Immich for the next batch of asset IDs using the current filter set.
+2. Download, extract and convert (HEIC to JPG/MP4) into a hidden staging directory inside `HASS_IMG_PATH`.
+3. Only once a complete, non-empty batch is staged: delete the old media files and move the new ones in. The moves are renames on the same filesystem, so the folder is only briefly incomplete.
+
+If anything fails — Immich is down or restarting, a validation error, a bad archive — or if the filter set matched no photos, **the previous photos stay on display** and the reason is logged as a warning or error. The frame keeps showing the last good batch instead of going empty until the next successful cycle. The staging directory is hidden (its name starts with a `.`), so Home Assistant's folder sensor never picks up a half-downloaded photo, and it is removed at the end of every cycle — including one left behind by a run that was killed.
 
 ```mermaid
 sequenceDiagram
     participant I as Immich Server
     participant A as HA Addon
+    participant S as Staging<br>/config/www/immich-photos/.immich-staging
     participant F as Shared Folder<br>/config/www/immich-photos
     participant H as Home Assistant
     participant G as Gallery Card
@@ -115,8 +147,9 @@ sequenceDiagram
         Note over A: Scheduled Run
         A->>I: Request random photos
         I-->>A: Return photos (HEIC/videos)
-        A->>A: Convert to JPG/MP4
-        A->>F: Save processed files
+        A->>S: Extract and convert to JPG/MP4
+        Note over A,F: Only if the new batch is complete
+        A->>F: Delete old media, move new files in
     end
 
     rect rgb(200, 200, 200)
@@ -135,3 +168,13 @@ sequenceDiagram
 ```
 
 
+
+## Development
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+python -m pytest -v
+```
+
+The tests mock the HTTP session; nothing talks to a real Immich server. CI runs them on every pull request and on pushes to `main`.
