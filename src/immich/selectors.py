@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 import logging
 from datetime import datetime
-from .immich_api import ImmichSession, ImmichAPI
+from .immich_api import ImmichSession, ImmichAPI, apply_date_filters
 import random
 
 logger = logging.getLogger(__name__)
@@ -78,11 +78,8 @@ class RandomAssetSelector(AssetSelector):
         }
         
         # Add date filtering if either date is specified
-        if self.taken_after:
-            request_body["takenAfter"] = self.taken_after.isoformat()
-        if self.taken_before:
-            request_body["takenBefore"] = self.taken_before.isoformat()
-        
+        apply_date_filters(request_body, self.taken_after, self.taken_before)
+
         # Only add filters if they are specified
         if self.person_ids:
             request_body["personIds"] = self.person_ids
@@ -153,10 +150,7 @@ class SmartSearchAssetSelector(AssetSelector):
         }
         
         # Add optional filters if specified
-        if self.taken_after:
-            request_body["takenAfter"] = self.taken_after.isoformat()
-        if self.taken_before:
-            request_body["takenBefore"] = self.taken_before.isoformat()
+        apply_date_filters(request_body, self.taken_after, self.taken_before)
         if self.person_ids:
             request_body["personIds"] = self.person_ids
         if self.city:
@@ -167,22 +161,22 @@ class SmartSearchAssetSelector(AssetSelector):
             json=request_body
         )
         response.raise_for_status()
-        
+
         # Smart search returns a response with both albums and assets sections
         response_data = response.json()
-        
+
         # Get asset IDs from the assets section
         assets_section = response_data.get("assets", {})
         asset_ids = [item["id"] for item in assets_section.get("items", [])]
-        
+
         # Also check albums section for additional assets
         albums_section = response_data.get("albums", {})
         for album in albums_section.get("items", []):
             if "assets" in album:
                 asset_ids.extend(asset["id"] for asset in album["assets"])
-        
+
         logger.info(f'Successfully retrieved {len(asset_ids)} assets matching "{self.search_query}"')
-        return asset_ids 
+        return asset_ids
 
 class RandomSmartSearchAssetSelector(AssetSelector):
     """Selects random assets from smart search results in Immich."""
@@ -240,10 +234,7 @@ class RandomSmartSearchAssetSelector(AssetSelector):
         }
         
         # Add optional filters if specified
-        if self.taken_after:
-            request_body["takenAfter"] = self.taken_after.isoformat()
-        if self.taken_before:
-            request_body["takenBefore"] = self.taken_before.isoformat()
+        apply_date_filters(request_body, self.taken_after, self.taken_before)
         if self.person_ids:
             request_body["personIds"] = self.person_ids
         if self.city:

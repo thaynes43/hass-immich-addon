@@ -3,6 +3,7 @@ Utility functions for file I/O operations.
 """
 import logging
 import os
+import shutil
 import zipfile
 from typing import List
 
@@ -107,10 +108,10 @@ def extract_zip(zip_path: str, extract_dir: str) -> List[str]:
 def cleanup_file(filepath: str) -> None:
     """
     Delete a file if it exists.
-    
+
     Args:
         filepath: Path to the file to delete
-        
+
     Raises:
         OSError: If file cannot be deleted
     """
@@ -120,4 +121,55 @@ def cleanup_file(filepath: str) -> None:
             logger.info(f"Successfully deleted {filepath}")
     except OSError as e:
         logger.error(f"Failed to delete file {filepath}: {e}", exc_info=True)
+        raise
+
+def remove_directory(directory: str) -> None:
+    """
+    Recursively delete a directory and everything in it, if it exists.
+
+    Used for the staging directory the photo updater downloads into. Failures are
+    logged and swallowed: a staging directory that cannot be removed must not fail
+    an otherwise successful update, and the next run removes it before staging
+    again.
+
+    Args:
+        directory: Path to the directory to remove
+    """
+    if not os.path.isdir(directory):
+        return
+
+    try:
+        shutil.rmtree(directory)
+        logger.debug(f"Removed directory {directory}")
+    except OSError as e:
+        logger.warning(f"Failed to remove directory {directory}: {e}")
+
+def move_file(src: str, dst: str) -> str:
+    """
+    Move a file to a new path, replacing any existing file at the destination.
+
+    Uses os.replace (an atomic rename) when source and destination are on the same
+    filesystem, which is the case for the staging directory, and falls back to
+    shutil.move otherwise.
+
+    Args:
+        src: Path of the file to move
+        dst: Destination path
+
+    Returns:
+        The destination path
+
+    Raises:
+        OSError: If the file cannot be moved
+    """
+    try:
+        try:
+            os.replace(src, dst)
+        except OSError:
+            # Different filesystem (or another rename failure) - copy and unlink.
+            shutil.move(src, dst)
+        logger.debug(f"Moved {src} to {dst}")
+        return dst
+    except OSError as e:
+        logger.error(f"Failed to move {src} to {dst}: {e}", exc_info=True)
         raise 

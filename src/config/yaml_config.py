@@ -2,8 +2,8 @@
 YAML configuration file handling.
 """
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import Dict, Any, List, Optional, Union
+from datetime import date, datetime
 import yaml
 
 from .defaults import *
@@ -33,12 +33,17 @@ def load_yaml_config(config_path: Path) -> AppConfig:
     filters_section = yaml_config.get('filters', [])
     
     # Helper function to parse dates from YAML
-    def parse_yaml_date(date_str: str) -> Optional[datetime]:
+    def parse_yaml_date(date_str: Union[str, date, datetime, None]) -> Optional[datetime]:
         if not date_str:
             return None
         try:
+            # PyYAML already parses unquoted values: `taken_after: 2023-01-01` becomes
+            # a datetime.date and `2023-01-01T00:00:00` a datetime.datetime. datetime is
+            # a subclass of date, so it has to be checked first.
             if isinstance(date_str, datetime):
                 return date_str
+            if isinstance(date_str, date):
+                return datetime.combine(date_str, datetime.min.time())
             return parse_datetime(date_str)
         except ValueError as e:
             raise ValueError(f"Invalid date format in YAML: {e}")
