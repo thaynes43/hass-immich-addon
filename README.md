@@ -178,3 +178,14 @@ python -m pytest -v
 ```
 
 The tests mock the HTTP session; nothing talks to a real Immich server. CI runs them on every pull request and on pushes to `main`.
+
+## Automated PR review
+
+Pull requests get an advisory review from Claude (`.github/workflows/claude-code-review.yml`), and `@claude` mentions in issues and PRs are handled by `.github/workflows/claude.yml`. The review is **advisory**: it is not a required check and never blocks a merge by itself. Agents and contributors must read its findings before merging, and each finding is either fixed or answered on the PR with a concrete reason it is wrong - never "merging anyway".
+
+Prerequisites (until both exist the jobs skip and finish green):
+
+- the Claude GitHub App is installed with access to this repo
+- the `CLAUDE_CODE_OAUTH_TOKEN` repo secret exists
+
+Fork PRs and Dependabot/Renovate PRs get no secrets, so they skip the review. `@claude` only responds to users with write access.
